@@ -3,13 +3,13 @@
 cron 33 9 * * * jd_exchangejxbeans.js
 TG频道：https://t.me/sheeplost
 */
-const $ = new Env('京豆兑换为喜豆');
+const $ = new Env('过期京豆兑换为喜豆');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [], cookie = '', message = '';
-let exjxbeans = false;
+let exjxbeans = true;
 if (process.env.exjxbeans) {
     exjxbeans = process.env.exjxbeans;
 }
