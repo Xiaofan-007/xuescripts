@@ -6,14 +6,11 @@
 [task_local]
 #众筹许愿池
 40 0,2 * * * https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_wish.js, tag=众筹许愿池, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
-
 ================Loon==============
 [Script]
 cron "40 0,2 * * *" script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_wish.js,tag=众筹许愿池
-
 ===============Surge=================
 众筹许愿池 = type=cron,cronexp="40 0,2 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_wish.js
-
 ============小火箭=========
 众筹许愿池 = type=cron,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_wish.js, cronexpr="40 0,2 * * *", timeout=3600, enable=true
  */
@@ -25,8 +22,8 @@ let message = '', allMessage = '';
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [], cookie = '';
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
-let appIdArr = ['1E1NXxq0', '1ElBTx6o', '1ElJYxqY'];
-let appNameArr = ['众筹许愿池', '企有此礼', '芯意制造盒'];
+let appIdArr = ['1E1NXxq0','1FFVQyqw','1EFVXxg'];
+let appNameArr = ['众筹许愿池','1111点心动','金榜年终奖'];
 let appId, appName;
 $.shareCode = [];
 if ($.isNode()) {
@@ -67,6 +64,10 @@ if ($.isNode()) {
         await jd_wish();
       }
     }
+  }
+  if (allMessage) {
+    if ($.isNode()) await notify.sendNotify($.name, allMessage);
+    $.msg($.name, '', allMessage)
   }
   let res = await getAuthorShareCode('')
   if (!res) {
@@ -132,6 +133,7 @@ async function jd_wish() {
       await interact_template_getLotteryResult()
       await $.wait(2000)
     }
+    if (message) allMessage += `京东账号${$.index} ${$.nickName || $.UserName}\n${appName}\n${message}${$.index !== cookiesArr.length ? '\n\n' : ''}`
 
   } catch (e) {
     $.logErr(e)
@@ -151,7 +153,7 @@ async function healthyDay_getHomeData(type = true) {
             if (type) {
               for (let key of Object.keys(data.data.result.taskVos).reverse()) {
                 let vo = data.data.result.taskVos[key]
-                if (vo.status !== 2) {
+                if (vo.status !== 2 && vo.status !== 0) {
                   if (vo.taskType === 13 || vo.taskType === 12) {
                     console.log(`签到`)
                     await harmony_collectScore({"appId":appId,"taskToken":vo.simpleRecordInfoVo.taskToken,"taskId":vo.taskId,"actionType":"0"}, vo.taskType)
@@ -262,11 +264,12 @@ function interact_template_getLotteryResult() {
             let userAwardsCacheDto = data && data.data && data.data.result && data.data.result.userAwardsCacheDto
             if (userAwardsCacheDto) {
               if (userAwardsCacheDto.type === 2) {
-                console.log(`抽中：${userAwardsCacheDto.jBeanAwardVo.quantity}${userAwardsCacheDto.jBeanAwardVo.ext}`)
+                console.log(`抽中：${userAwardsCacheDto.jBeanAwardVo.quantity}${userAwardsCacheDto.jBeanAwardVo.ext || `京豆`}`)
               } else if (userAwardsCacheDto.type === 0) {
                 console.log(`很遗憾未中奖~`)
               } else {
                 console.log(JSON.stringify(data))
+                message += `抽中：${JSON.stringify(data)}\n`
               }
             } else {
               $.canLottery = false
